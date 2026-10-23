@@ -1,0 +1,116 @@
+# Ready-to-paste Home Assistant automations.
+# Entity IDs assume the discovery configs in ha-telemetry/ha_telemetry.py.
+# Replace notify.mobile_app_your_phone and the calendar entity with your own.
+
+- id: workstation_gaming_session
+  alias: "Workstation: gaming session"
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.workstation_steam_game_fullscreen
+      to: "on"
+      id: start
+    - trigger: state
+      entity_id: binary_sensor.workstation_steam_game_fullscreen
+      to: "off"
+      id: stop
+  actions:
+    - choose:
+        - conditions: "{{ trigger.id == 'start' }}"
+          sequence:
+            - action: switch.turn_on
+              target:
+                entity_id: switch.workstation_notification_silencing
+            - action: light.turn_on
+              target:
+                area_id: office
+              data:
+                brightness_pct: 30
+      default:
+        - action: switch.turn_off
+          target:
+            entity_id: switch.workstation_notification_silencing
+        - action: light.turn_on
+          target:
+            area_id: office
+          data:
+            brightness_pct: 80
+  mode: single
+
+- id: workstation_specific_game
+  alias: "Workstation: specific game started"
+  triggers:
+    - trigger: state
+      entity_id: sensor.workstation_steam_game
+      to: "Example Game"
+  actions:
+    - action: notify.mobile_app_your_phone
+      data:
+        title: Gaming
+        message: "Now playing {{ states('sensor.workstation_steam_game') }}"
+
+- id: workstation_teams_dnd
+  alias: "Workstation: silence during Teams meetings"
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.workstation_teams_meeting
+      to: "on"
+      id: start
+    - trigger: state
+      entity_id: binary_sensor.workstation_teams_meeting
+      to: "off"
+      id: stop
+  actions:
+    # The stop branch also clears DND if you enabled it manually; use a
+    # condition or a helper if you need to preserve manual state.
+    - choose:
+        - conditions: "{{ trigger.id == 'start' }}"
+          sequence:
+            - action: switch.turn_on
+              target:
+                entity_id: switch.workstation_notification_silencing
+      default:
+        - action: switch.turn_off
+          target:
+            entity_id: switch.workstation_notification_silencing
+
+- id: workstation_calendar_focus
+  alias: "Workstation: DND for calendar focus blocks"
+  triggers:
+    - trigger: calendar
+      entity_id: calendar.work
+      event: start
+      offset: "-00:01:00"
+      id: start
+    - trigger: calendar
+      entity_id: calendar.work
+      event: end
+      id: end
+  actions:
+    - choose:
+        - conditions: "{{ trigger.id == 'start' }}"
+          sequence:
+            - action: switch.turn_on
+              target:
+                entity_id: switch.workstation_notification_silencing
+            # Remove this if the machine should be allowed to idle/sleep.
+            - action: switch.turn_on
+              target:
+                entity_id: switch.workstation_stay_awake
+      default:
+        - action: switch.turn_off
+          target:
+            entity_id: switch.workstation_notification_silencing
+        - action: switch.turn_off
+          target:
+            entity_id: switch.workstation_stay_awake
+
+- id: workstation_lock_after_focus
+  alias: "Workstation: lock after a focus block"
+  triggers:
+    - trigger: calendar
+      entity_id: calendar.work
+      event: end
+  actions:
+    - action: button.press
+      target:
+        entity_id: button.workstation_lock_screen

@@ -1,0 +1,47 @@
+--- a/glances.conf	2026-10-23 12:58:08.812551304 +0200
++++ b/glances.conf	2026-10-23 12:58:08.812797276 +0200
+@@ -195,7 +195,7 @@
+ #ctx_switches_critical=14000
+ 
+ [percpu]
+-disable=False
++disable=True
+ # Define the maximum number of CPU displayed at a time
+ # If the number of CPU is higher than the one configured in max_cpu_display then:
+ # - display top 'max_cpu_display' (sorted by CPU consumption)
+@@ -365,7 +365,7 @@
+ critical=-85
+ 
+ [diskio]
+-disable=False
++disable=True
+ # Define the list of hidden disks (comma-separated regexp)
+ #hide=sda2,sda5,loop.*
+ hide=loop.*,/dev/loop.*
+@@ -413,7 +413,7 @@
+ # Filesystem usage (statvfs) changes slowly.
+ refresh=60
+ # Define the list of file system to hide (comma-separated regexp)
+-hide=/boot.*,.*/snap.*
++hide=/boot.*,.*/snap.*,/home,/var/log,/var/cache/pacman/pkg
+ # Define the list of file system to show (comma-separated regexp)
+ #show=/,/srv
+ # Define filesystem space thresholds in %
+@@ -502,7 +502,7 @@
+ # Hide some sensors (comma separated list of regexp)
+ hide=unknown.*
+ # Show only the following sensors (comma separated list of regexp)
+-#show=CPU.*
++show=Tctl,Tccd1,Composite.*,Sensor 2,edge,junction,mem,^VRM$
+ # Sensors core thresholds (in Celsius...)
+ # Note: By default values are grabbed from the system (if values are available)
+ # Core temperature thresholds in °C
+@@ -532,7 +532,7 @@
+ #alias=core 0:CPU Core 0,core 1:CPU Core 1
+ 
+ [processcount]
+-disable=False
++disable=True
+ # If you want to change the refresh rate of the processing list, please uncomment:
+ #refresh=10
+ 

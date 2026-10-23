@@ -1,0 +1,13 @@
+[Unit]
+Description=Home Assistant telemetry over MQTT
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/ha-telemetry/venv/bin/python %h/.local/share/ha-telemetry/ha_telemetry.py
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=default.target

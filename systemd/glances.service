@@ -1,0 +1,13 @@
+[Unit]
+Description=Glances web server (Home Assistant telemetry)
+Documentation=https://www.home-assistant.io/integrations/glances/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/glances --webserver --bind 0.0.0.0 --port 61208
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target
